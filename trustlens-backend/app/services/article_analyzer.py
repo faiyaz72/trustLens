@@ -1,6 +1,11 @@
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 from app.utils.extractor import extract_article
 
 def analyze_article(url: str):
+    logging.info(f"Analyzing article from URL: {url}")
     article = extract_article(url)
     return {
         "title": article.title,
