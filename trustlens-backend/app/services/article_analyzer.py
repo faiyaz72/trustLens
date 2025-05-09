@@ -1,8 +1,9 @@
 import logging
+from textblob import TextBlob
+from app.utils.extractor import extract_article
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-from app.utils.extractor import extract_article
 
 def article_detail(url: str):
     logging.info(f"Fetching article details from URL: {url}")
@@ -18,9 +19,16 @@ def article_detail(url: str):
 def analyze_article(url: str):
     logging.info(f"Analyzing article from URL: {url}")
     article = extract_article(url)
+    blob = TextBlob(article.text)
+    sentiment = blob.sentiment
+    logging.debug(f"Sentiment analysis result: {sentiment}")
     return {
         "title": article.title,
         "text": article.text[:500],
         "author": article.authors,
-        "publish_date": str(article.publish_date) if article.publish_date else None
+        "publish_date": str(article.publish_date) if article.publish_date else None,
+        "sentiment": {
+            "polarity": sentiment.polarity,
+            "subjectivity": sentiment.subjectivity
+        }
     }
