@@ -2,3 +2,6 @@
 __pycache__/
 *.py[cod]
 *.pyo
+# ignore virtual environments
+venv/
+trustlens-backend/app/.DS_Store
