@@ -2,14 +2,17 @@ import logging
 from collections import defaultdict
 from textblob import TextBlob
 
+from app.core.claim_verbs import get_claim_verbs
 from app.core.nlp import get_spacy_model
-from app.utils.constants import ENITITY_ANALYSIS_LOOKUP
+from app.utils.constants import ENITITY_ANALYSIS_LOOKUP, CLAIM_ENTITY_LOOKUP
 from app.utils.fuzzy import normalize_string
-from app.utils.utils import extract_article
+from app.utils.utils import clean_text, extract_article
 from app.core.sentimental_verbs import SENTIMENTAL_VERBS
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+CLAIM_VERBS = get_claim_verbs()
 
 def article_detail(url: str):
     logging.info(f"Fetching article details from URL: {url}")
@@ -58,20 +61,31 @@ def generate_entity_analysis(text):
 
     sentences = list(doc.sents)
     sentiment_dict = defaultdict(list)
+    claim_sentences = set()
 
     for idx, sentence in enumerate(sentences):
         for ent in sentence.ents:
+            relevant_sentences = sentences[max(idx-1, 0) : min(idx+2, len(sentences))]
             if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
-                relevant_sentences = sentences[max(idx-1, 0) : min(idx+2, len(sentences))]
                 if (is_entity_target_of_sentiment(sentence, ent)):
-                    relavant_text = " ".join([sent.text for sent in relevant_sentences])
+                    relavant_text = " ".join([clean_text(sent) for sent in relevant_sentences])
                     normalized = normalize_string(ent.text)
                     blob = TextBlob(relavant_text)
                     sentiment_dict[normalized].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
+            if ent.label_ in CLAIM_ENTITY_LOOKUP:
+                add_to_claim_sentences(claim_sentences, sentence)
     
     average_sentiment = calculate_average_sentiment(sentiment_dict)
-    logger.debug(f"Entity analysis result: {average_sentiment}")
-    return average_sentiment
+    return {
+        "average_sentiment": average_sentiment,
+        "claim_sentences": claim_sentences
+    }
+
+def add_to_claim_sentences(claim_sentences, sentence):
+    sentence_builder = ""
+    if has_claim_verb(sentence):
+        sentence_builder += clean_text(sentence) + " "
+    claim_sentences.add(sentence_builder.strip())
 
 def is_entity_target_of_sentiment(sentence, entity_span):
     """
@@ -83,6 +97,15 @@ def is_entity_target_of_sentiment(sentence, entity_span):
             head_verb = token.head
             if head_verb.pos_ == "VERB":
                 return True
+    return False
+
+def has_claim_verb(sentence):
+    """
+    Check if the sentence contains a claim verb.
+    """
+    for token in sentence:
+        if token.pos_ == "VERB" and token.lemma_.lower() in CLAIM_VERBS:
+            return True
     return False
 
 

@@ -4,3 +4,15 @@ ENITITY_ANALYSIS_LOOKUP = [
   "NORP",
   "ORG",
 ]
+
+CLAIM_ENTITY_LOOKUP = [
+  "PERSON",
+  "NORP",
+  "ORG",
+  "GPE",
+  "DATE",
+  "MONEY",
+  "PERCENT",
+  "PRODUCT",
+  "EVENT",
+]
