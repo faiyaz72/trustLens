@@ -61,7 +61,7 @@ def generate_entity_analysis(text):
 
     sentences = list(doc.sents)
     sentiment_dict = defaultdict(list)
-    claim_sentences = set()
+    claim_sentences = []
 
     for idx, sentence in enumerate(sentences):
         for ent in sentence.ents:
@@ -72,9 +72,13 @@ def generate_entity_analysis(text):
                     normalized = normalize_string(ent.text)
                     blob = TextBlob(relavant_text)
                     sentiment_dict[normalized].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
-            if ent.label_ in CLAIM_ENTITY_LOOKUP:
-                if has_claim_verb(sentence):
-                    claim_sentences.add(clean_text(sentence))
+        if filter_sentence_claim(sentence):
+            claim_object = {
+                "claim": clean_text(sentence),
+                "score": 0,
+                "entities": get_entities(sentence),
+            }
+            claim_sentences.append(claim_object)
                     
     
     average_sentiment = calculate_average_sentiment(sentiment_dict)
@@ -82,6 +86,16 @@ def generate_entity_analysis(text):
         "average_sentiment": average_sentiment,
         "claim_sentences": claim_sentences
     }
+
+def get_entities(sentence):
+    """
+    Extract entities from the sentence and return them in a dictionary.
+    """
+    entities = []
+    for ent in sentence.ents:
+        if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
+            entities.append(normalize_string(ent.text))
+    return entities
 
 def is_entity_target_of_sentiment(sentence, entity_span):
     """
@@ -95,10 +109,19 @@ def is_entity_target_of_sentiment(sentence, entity_span):
                 return True
     return False
 
-def has_claim_verb(sentence):
+def filter_sentence_claim(sentence):
     """
     Check if the sentence contains a claim verb.
     """
+    valid_ent: bool = False
+    for ent in sentence.ents:
+        if ent.label_ in CLAIM_ENTITY_LOOKUP:
+            valid_ent = True
+            break
+
+    if not valid_ent:
+        return False
+    
     for token in sentence:
         if token.pos_ == "VERB" and token.lemma_.lower() in CLAIM_VERBS:
             return True

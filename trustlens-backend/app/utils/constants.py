@@ -3,6 +3,7 @@ ENITITY_ANALYSIS_LOOKUP = [
   "PERSON",
   "NORP",
   "ORG",
+  "GPE"
 ]
 
 CLAIM_ENTITY_LOOKUP = [
