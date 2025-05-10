@@ -55,10 +55,16 @@ def generate_entity_analysis(text):
 
     for sentence in sentences:
         for ent in sentence.ents:
-            if normalize_string(ent.text) in entity_set:
+            normalized = normalize_string(ent.text)
+            if normalized in entity_set:
                 blob = TextBlob(sentence.text)
-                sentiment_dict[ent.text].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
+                sentiment_dict[normalized].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
     
+    average_sentiment = calculate_average_sentiment(sentiment_dict)
+    logger.debug(f"Entity analysis result: {average_sentiment}")
+    return average_sentiment
+
+def calculate_average_sentiment(sentiment_dict):
     average_sentiment = {}
     for entity, sentiments in sentiment_dict.items():
         total_polarity = 0 
@@ -75,5 +81,5 @@ def generate_entity_analysis(text):
             "average_polarity": avg_polarity,
             "average_subjectivity": avg_subjectivity
         }
-    logger.debug(f"Entity analysis result: {average_sentiment}")
+        
     return average_sentiment

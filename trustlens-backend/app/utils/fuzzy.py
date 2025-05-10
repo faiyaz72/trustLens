@@ -1,5 +1,6 @@
+import logging
 from rapidfuzz import process
-from app.utils.constants import CANONICAL_ENTITIES
+from app.core.cananical_manager import get_canonical_entities, add_canonical_entity
 
 def normalize_string(s: str) -> str:
     """
@@ -9,19 +10,18 @@ def normalize_string(s: str) -> str:
         striped = s.upper().strip()
         result = process.extractOne(
             striped,
-            CANONICAL_ENTITIES,
-            score_cutoff=90
+            get_canonical_entities(),
+            score_cutoff=80
         )
 
         if result:  # Check if a match was found
-            match, score = result
-            return match
+            return result[0]
         else:
-            CANONICAL_ENTITIES.append(striped)
+            add_canonical_entity(striped)
             return striped
     except Exception as e:
-        print(f"Error normalizing string: {e}")
-        return s
+        logging.error(f"Error normalizing string: {e}")
+        return striped
     
         
    
