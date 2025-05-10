@@ -24,21 +24,13 @@ def analyze_article(url: str):
     
     logging.info(f"Analyzing article from URL: {url}")
     article = extract_article(url)
-    blob = TextBlob(article.text)
-    sentiment = blob.sentiment
-
-    generate_entity_analysis(article.text)
-
-    logging.debug(f"Sentiment analysis result: {sentiment}")
+    analysis = generate_entity_analysis(article.text)
     return {
         "title": article.title,
         "text": article.text[:500],
         "author": article.authors,
         "publish_date": str(article.publish_date) if article.publish_date else None,
-        "sentiment": {
-            "polarity": sentiment.polarity,
-            "subjectivity": sentiment.subjectivity
-        }
+        "analysis": analysis,
     }
 
 def generate_entity_analysis(text):
