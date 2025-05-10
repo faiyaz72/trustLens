@@ -73,19 +73,15 @@ def generate_entity_analysis(text):
                     blob = TextBlob(relavant_text)
                     sentiment_dict[normalized].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
             if ent.label_ in CLAIM_ENTITY_LOOKUP:
-                add_to_claim_sentences(claim_sentences, sentence)
+                if has_claim_verb(sentence):
+                    claim_sentences.add(clean_text(sentence))
+                    
     
     average_sentiment = calculate_average_sentiment(sentiment_dict)
     return {
         "average_sentiment": average_sentiment,
         "claim_sentences": claim_sentences
     }
-
-def add_to_claim_sentences(claim_sentences, sentence):
-    sentence_builder = ""
-    if has_claim_verb(sentence):
-        sentence_builder += clean_text(sentence) + " "
-    claim_sentences.add(sentence_builder.strip())
 
 def is_entity_target_of_sentiment(sentence, entity_span):
     """
