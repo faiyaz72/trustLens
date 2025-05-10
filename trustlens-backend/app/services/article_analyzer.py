@@ -3,7 +3,7 @@ import logging
 from textblob import TextBlob
 from app.utils.utils import extract_article
 from app.utils.constants import ENITITY_ANALYSIS_LOOKUP
-import spacy
+from app.core.nlp import get_spacy_model
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ def analyze_article(url: str):
     }
 
 def generate_entity_analysis(text):
-    nlp = spacy.load("en_core_web_sm")
+    nlp = get_spacy_model()
     doc = nlp(text)
     entity_set = set()
 
