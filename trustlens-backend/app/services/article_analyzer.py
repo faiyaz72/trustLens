@@ -19,6 +19,7 @@ def article_detail(url: str):
     article = extract_article(url)
     return {
         "title": article.title,
+        "text": article.text[:500],
         "author": article.authors,
         "publish_date": str(article.publish_date) if article.publish_date else None,
         "url": article.url
@@ -32,7 +33,6 @@ def analyze_article(url: str):
     analysis = generate_entity_analysis(article.text)
     return {
         "title": article.title,
-        "text": article.text[:500],
         "author": article.authors,
         "publish_date": str(article.publish_date) if article.publish_date else None,
         "analysis": analysis,
@@ -94,7 +94,9 @@ def get_entities(sentence):
     entities = []
     for ent in sentence.ents:
         if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
-            entities.append(normalize_string(ent.text))
+            normalized = normalize_string(ent.text)
+            if normalized not in entities:
+                entities.append(normalize_string(ent.text))
     return entities
 
 def is_entity_target_of_sentiment(sentence, entity_span):
