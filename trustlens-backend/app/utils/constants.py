@@ -1,0 +1,6 @@
+
+ENITITY_ANALYSIS_LOOKUP = [
+  "PERSON",
+  "NORP",
+  "ORG",
+]

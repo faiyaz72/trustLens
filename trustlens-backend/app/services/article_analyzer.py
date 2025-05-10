@@ -1,6 +1,8 @@
+from collections import defaultdict
 import logging
 from textblob import TextBlob
-from app.utils.extractor import extract_article
+from app.utils.utils import extract_article
+from app.utils.constants import ENITITY_ANALYSIS_LOOKUP
 import spacy
 
 logging.basicConfig(level=logging.DEBUG)
@@ -18,15 +20,13 @@ def article_detail(url: str):
 
 
 def analyze_article(url: str):
+    
     logging.info(f"Analyzing article from URL: {url}")
     article = extract_article(url)
     blob = TextBlob(article.text)
     sentiment = blob.sentiment
 
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(article.text)
-    for ent in doc.ents:
-        print(ent.text, ent.label_)
+    generate_entity_analysis(article.text)
 
     logging.debug(f"Sentiment analysis result: {sentiment}")
     return {
@@ -39,3 +39,40 @@ def analyze_article(url: str):
             "subjectivity": sentiment.subjectivity
         }
     }
+
+def generate_entity_analysis(text):
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(text)
+    entity_set = set()
+
+    for ent in doc.ents:
+        if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
+            entity_set.add(ent.text)
+
+    sentences = list(doc.sents)
+    sentiment_dict = defaultdict(list)
+
+    for sentence in sentences:
+        for ent in sentence.ents:
+            if ent.text in entity_set:
+                blob = TextBlob(sentence.text)
+                sentiment_dict[ent.text].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
+    
+    average_sentiment = {}
+    for entity, sentiments in sentiment_dict.items():
+        total_polarity = 0 
+        total_subjectivity = 0
+        for polarity, subjectivity in sentiments:
+            total_polarity += polarity
+            total_subjectivity += subjectivity
+        
+        avg_polarity = total_polarity / len(sentiments)
+        avg_subjectivity = total_subjectivity / len(sentiments)
+    
+
+        average_sentiment[entity] = {
+            "average_polarity": avg_polarity,
+            "average_subjectivity": avg_subjectivity
+        }
+    logger.debug(f"Entity analysis result: {average_sentiment}")
+    return average_sentiment
