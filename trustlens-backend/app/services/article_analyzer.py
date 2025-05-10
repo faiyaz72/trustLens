@@ -3,6 +3,7 @@ import logging
 from textblob import TextBlob
 from app.utils.utils import extract_article
 from app.utils.constants import ENITITY_ANALYSIS_LOOKUP
+from app.utils.fuzzy import normalize_string
 from app.core.nlp import get_spacy_model
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,14 +48,14 @@ def generate_entity_analysis(text):
 
     for ent in doc.ents:
         if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
-            entity_set.add(ent.text)
+            entity_set.add(normalize_string(ent.text))
 
     sentences = list(doc.sents)
     sentiment_dict = defaultdict(list)
 
     for sentence in sentences:
         for ent in sentence.ents:
-            if ent.text in entity_set:
+            if normalize_string(ent.text) in entity_set:
                 blob = TextBlob(sentence.text)
                 sentiment_dict[ent.text].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
     
