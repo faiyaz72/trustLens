@@ -44,19 +44,14 @@ def analyze_article(url: str):
 def generate_entity_analysis(text):
     nlp = get_spacy_model()
     doc = nlp(text)
-    entity_set = set()
-
-    for ent in doc.ents:
-        if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
-            entity_set.add(normalize_string(ent.text))
 
     sentences = list(doc.sents)
     sentiment_dict = defaultdict(list)
 
     for sentence in sentences:
         for ent in sentence.ents:
-            normalized = normalize_string(ent.text)
-            if normalized in entity_set:
+            if ent.label_ in ENITITY_ANALYSIS_LOOKUP:
+                normalized = normalize_string(ent.text)
                 blob = TextBlob(sentence.text)
                 sentiment_dict[normalized].append((blob.sentiment.polarity, blob.sentiment.subjectivity))
     
