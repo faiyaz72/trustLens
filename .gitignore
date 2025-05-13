@@ -5,3 +5,4 @@ __pycache__/
 # ignore virtual environments
 venv/
 trustlens-backend/app/.DS_Store
+trustlens-backend/.env

@@ -1,11 +1,14 @@
+import os
 import requests
 from fuzzywuzzy import fuzz
 from app.core.nlp import get_spacy_model
+from dotenv import load_dotenv
 # import spacy
 # nlp = spacy.load("en_core_web_sm")
 
-GOOGLE_API_KEY = "AIzaSyBrFNZwSk8gs9DtfIBC_l3sSVHzHhPFBDs"
-GOOGLE_CSE_ID = "8036da30a4e9c4bea"
+load_dotenv()
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 def search_claim(claim_text):
   search_url = "https://www.googleapis.com/customsearch/v1"
