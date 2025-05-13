@@ -11,7 +11,7 @@ def normalize_string(s: str) -> str:
         result = process.extractOne(
             striped,
             get_canonical_entities(),
-            score_cutoff=70
+            score_cutoff=85
         )
 
         if result:  # Check if a match was found

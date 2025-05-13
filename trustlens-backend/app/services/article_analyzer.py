@@ -3,6 +3,7 @@ from collections import defaultdict
 from textblob import TextBlob
 
 from app.core.claim_verbs import get_claim_verbs
+from app.core.fact_check import build_search_query, fact_check_claim
 from app.core.nlp import get_spacy_model
 from app.utils.constants import ENITITY_ANALYSIS_LOOKUP, CLAIM_ENTITY_LOOKUP
 from app.utils.fuzzy import normalize_string
@@ -75,7 +76,7 @@ def generate_entity_analysis(text):
         if filter_sentence_claim(sentence):
             claim_object = {
                 "claim": clean_text(sentence),
-                "score": 0,
+                "score": fact_check_claim(clean_text(sentence)),
                 "entities": get_entities(sentence),
             }
             claim_sentences.append(claim_object)
