@@ -33,6 +33,21 @@ This helps build the foundation for a fully automated **Fact-Checking System**.
 
 ---
 
+## Key Fields Explanation
+
+| Field                        | Description                                                             |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `title`                      | The title of the analyzed article.                                      |
+| `author`                     | List of authors extracted (may be empty).                               |
+| `publish_date`               | Date the article was published (nullable).                              |
+| `analysis.average_sentiment` | Dictionary where each entity has its average polarity and subjectivity. |
+| `analysis.claim_sentences`   | List of detected claims made in the article. Each claim has:            |
+| - `claim`                    | Text of the extracted claim sentence.                                   |
+| - `score`                    | \[Match Score (0/1), List of Evidence Snippets from Google Search].     |
+| - `entities`                 | List of normalized entities detected within the claim.                  |
+
+---
+
 ## Sample Output (for `/analyze` endpoint)
 
 ```json
